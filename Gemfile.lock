@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    air_test (0.1.0)
+    air_test (0.1.2)
 
 GEM
   remote: https://rubygems.org/
