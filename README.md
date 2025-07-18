@@ -1,43 +1,133 @@
-# AirTest
+# air_test
 
-TODO: Delete this and the text below, and describe your gem
+Automate the generation of Turnip/RSpec specs from Notion tickets, create branches, commits, pushes, and GitHub Pull Requests—all with a single Rake command.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/air_test`. To experiment with that code, run `bin/console` for an interactive prompt.
+## 🚀 Features
 
-## Installation
+- Fetches Notion tickets (Gherkin format)
+- Parses and extracts features/scenarios
+- Generates Turnip/RSpec spec files and matching step definitions
+- Creates a dedicated branch, commits, pushes
+- Opens a Pull Request on GitHub with a rich, pre-filled template
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+---
 
-Install the gem and add to the application's Gemfile by executing:
+## ⚡️ Installation
 
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+Add the gem to your `Gemfile`:
+
+```ruby
+gem 'air_test', path: '../path/to/air_test'
+```
+or, if you publish it on a git repo:
+```ruby
+gem 'air_test', git: 'https://github.com/your-org/air_test.git'
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
-
-```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+Then install dependencies:
+```sh
+bundle install
 ```
 
-## Usage
+---
 
-TODO: Write usage instructions here
+## ⚙️ Configuration
 
-## Development
+Create an initializer in your Rails project:  
+`config/initializers/air_test.rb`
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```ruby
+AirTest.configure do |config|
+  config.notion_token = ENV['NOTION_TOKEN']
+  config.notion_database_id = ENV['NOTION_DATABASE_ID']
+  config.github_token = ENV['GITHUB_BOT_TOKEN'] # or GITHUB_TOKEN
+  config.repo = 'your-org/your-repo' # format: 'organization/repo_name'
+end
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Make sure your environment variables are set (in `.env`, your shell, or your CI/CD).
 
-## Contributing
+---
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/air_test. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/air_test/blob/master/CODE_OF_CONDUCT.md).
+## 🛠 Usage
 
-## License
+Run the automated workflow from your Rails project terminal:
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+```sh
+bundle exec rake air_test:generate_specs_from_notion
+```
 
-## Code of Conduct
+- This will:
+  - Fetch Notion tickets
+  - Generate Turnip/RSpec specs and step files
+  - Create a branch, commit, push
+  - Open a Pull Request on GitHub with a rich template
 
-Everyone interacting in the AirTest project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/air_test/blob/master/CODE_OF_CONDUCT.md).
+---
+
+## 📋 Requirements
+
+- A Notion API token with access to your database
+- A GitHub token with push and PR creation rights
+- A configured remote git repository (`git remote -v`)
+- The folders `spec/features` and `spec/steps` (created automatically if needed)
+
+---
+
+## 🧩 Gem Structure
+
+- `lib/air_test/configuration.rb`: centralized configuration
+- `lib/air_test/notion_parser.rb`: Notion extraction and parsing
+- `lib/air_test/spec_generator.rb`: spec and step file generation
+- `lib/air_test/github_client.rb`: git and GitHub PR management
+- `lib/air_test/runner.rb`: workflow orchestrator
+- `lib/tasks/air_test.rake`: Rake task to launch the automation
+
+---
+
+## 📝 Example .env
+
+```
+NOTION_TOKEN=secret_xxx
+NOTION_DATABASE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+GITHUB_BOT_TOKEN=ghp_xxx
+```
+
+---
+
+## 🧪 Tests (optional)
+
+If you want to test the gem’s services, you can add specs in the `spec/` folder.
+
+---
+
+## 🆘 Troubleshooting
+
+- **Notion or GitHub authentication error**: check your tokens.
+- **PR not created**: make sure the branch contains commits different from `main`.
+- **Permission issues**: ensure the GitHub bot has access to the repo.
+
+---
+
+## 📦 Publishing the Gem (optional)
+
+To publish the gem on RubyGems:
+
+```sh
+gem build air_test.gemspec
+gem push air_test-x.y.z.gem
+```
+
+---
+
+## 👨‍💻 Author & License
+
+- Author: [Airtest]
+- License: MIT
+
+---
+
+**Need an integration example or install script?**  
+Open an issue or contact me!
+
+---
