@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+require 'fileutils'
+
+GREEN = "\e[32m"
+YELLOW = "\e[33m"
+RED = "\e[31m"
+CYAN = "\e[36m"
+RESET = "\e[0m"
+
+puts "#{CYAN}🚀 Initializing AirTest for your Rails project...#{RESET}\n"
+
+initializer_path = "config/initializers/air_test.rb"
+if File.exist?(initializer_path)
+  puts "#{YELLOW}⚠️  #{initializer_path} already exists. Skipping.#{RESET}"
+else
+  FileUtils.mkdir_p(File.dirname(initializer_path))
+  File.write(initializer_path, <<~RUBY)
+    AirTest.configure do |config|
+      config.notion_token = ENV['NOTION_TOKEN']
+      config.notion_database_id = ENV['NOTION_DATABASE_ID']
+      config.github_token = ENV['GITHUB_BOT_TOKEN']
+      config.repo = 'your-org/your-repo' # format: 'organization/repo_name'
+    end
+  RUBY
+  puts "#{GREEN}✅ Created #{initializer_path}#{RESET}"
+end
+
+['spec/features', 'spec/steps'].each do |dir|
+  if Dir.exist?(dir)
+    puts "#{YELLOW}⚠️  #{dir} already exists. Skipping.#{RESET}"
+  else
+    FileUtils.mkdir_p(dir)
+    puts "#{GREEN}✅ Created #{dir}/#{RESET}"
+  end
+end
+
+example_env = ".env.air_test.example"
+if File.exist?(example_env)
+  puts "#{YELLOW}⚠️  #{example_env} already exists. Skipping.#{RESET}"
+else
+  File.write(example_env, <<~ENV)
+    NOTION_TOKEN=your_notion_token
+    NOTION_DATABASE_ID=your_notion_database_id
+    GITHUB_BOT_TOKEN=your_github_token
+  ENV
+  puts "#{GREEN}✅ Created #{example_env}#{RESET}"
+end
+
+puts "\n🔎 Checking environment variables..."
+missing = []
+%w[NOTION_TOKEN NOTION_DATABASE_ID GITHUB_BOT_TOKEN].each do |var|
+  if ENV[var].nil? || ENV[var].empty?
+    puts "#{YELLOW}⚠️  #{var} is not set!#{RESET}"
+    missing << var
+  else
+    puts "#{GREEN}✅ #{var} is set#{RESET}"
+  end
+end
+
+puts "\n✨ All set! Next steps:"
+puts "  1. Fill in your config/initializers/air_test.rb"
+puts "  2. Add your tokens to .env or your environment"
+puts "  3. Run: bundle exec rake air_test:generate_specs_from_notion"
+puts "\nHappy testing! 🎉" 
