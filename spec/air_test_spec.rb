@@ -6,6 +6,6 @@ RSpec.describe AirTest do
   end
 
   it "does something useful" do
-    expect(false).to eq(true)
+    expect(AirTest).to be_a(Module)
   end
 end
