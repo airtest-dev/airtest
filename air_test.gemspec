@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Generate specs and PR from Notion"
   spec.description = "Automate the generation of Turnip/RSpec specs from Notion tickets, create branches, commits, pushes, and GitHub Pull Requests—all with a single Rake command."
-  spec.homepage = "https://github.com/airtest-io/air_test"
+  spec.homepage = "https://github.com/airtest-dev/airtest"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
