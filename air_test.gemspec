@@ -9,7 +9,8 @@ Gem::Specification.new do |spec|
   spec.email = ["bouland.julien@gmail.com"]
 
   spec.summary = "Generate specs and PR from Notion"
-  spec.description = "Automate the generation of Turnip/RSpec specs from Notion tickets, create branches, commits, pushes, and GitHub Pull Requests—all with a single Rake command."
+  spec.description = "Automate the generation of Turnip/RSpec specs from Notion tickets, create branches, " \
+                     "commits, pushes, and GitHub Pull Requests. All with a single Rake command."
   spec.homepage = "https://github.com/airtest-dev/airtest"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
@@ -19,6 +20,7 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "https://github.com/airtest-io/air_test/blob/main/CHANGELOG.md"
+  spec.metadata["rubygems_mfa_required"] = "true"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

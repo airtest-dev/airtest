@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "air_test/version"
-require_relative "air_test/configuration"
-require_relative "air_test/notion_parser"
-require_relative "air_test/spec_generator"
-require_relative "air_test/github_client"
+# Main namespace for the AirTest gem, which automates spec generation and GitHub integration.
 module AirTest
   class << self
     attr_accessor :configuration

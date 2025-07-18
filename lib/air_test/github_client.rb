@@ -1,7 +1,9 @@
 # frozen_string_literal: true
-require 'octokit'
+
+require "octokit"
 
 module AirTest
+  # Handles GitHub API interactions for AirTest, such as commits and pull requests.
   class GithubClient
     def initialize(config = AirTest.configuration)
       @github_token = config.github_token
@@ -17,18 +19,18 @@ module AirTest
       end
       files.each { |f| system("git add -f #{f}") }
       has_changes = !system("git diff --cached --quiet")
-      if has_changes
-        system("git commit -m '#{commit_message}'")
-      end
+      system("git commit -m '#{commit_message}'") if has_changes
       system("git push origin #{branch}")
       has_changes
     end
 
-    def create_pull_request(branch, pr_title, pr_body, assignees: ['Notion'])
+    # rubocop:disable Metrics/MethodLength
+    def create_pull_request(branch, pr_title, pr_body, assignees: ["Notion"])
       return unless @client && @repo
+
       @client.create_pull_request(
         @repo,
-        'main',
+        "main",
         branch,
         pr_title,
         pr_body,
@@ -38,6 +40,7 @@ module AirTest
       warn "❌ Erreur lors de la création de la PR : #{e.message}"
       nil
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -47,7 +50,7 @@ module AirTest
 
     def detect_repo_from_git
       remote_url = `git config --get remote.origin.url`.strip
-      remote_url.split(/[:\/]/).last(2).join('/').gsub(/\.git$/, '')
+      remote_url.split(%r{[:/]}).last(2).join("/").gsub(/\.git$/, "")
     end
   end
-end 
+end

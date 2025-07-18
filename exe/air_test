@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
-require 'fileutils'
+# frozen_string_literal: true
+
+require "fileutils"
 
 GREEN = "\e[32m"
 YELLOW = "\e[33m"
@@ -25,7 +27,7 @@ else
   puts "#{GREEN}✅ Created #{initializer_path}#{RESET}"
 end
 
-['spec/features', 'spec/steps'].each do |dir|
+["spec/features", "spec/steps"].each do |dir|
   if Dir.exist?(dir)
     puts "#{YELLOW}⚠️  #{dir} already exists. Skipping.#{RESET}"
   else
@@ -61,4 +63,4 @@ puts "\n✨ All set! Next steps:"
 puts "  1. Fill in your config/initializers/air_test.rb"
 puts "  2. Add your tokens to .env or your environment"
 puts "  3. Run: bundle exec rake air_test:generate_specs_from_notion"
-puts "\nHappy testing! 🎉" 
+puts "\nHappy testing! 🎉"
