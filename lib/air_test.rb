@@ -11,3 +11,13 @@ module AirTest
     yield(configuration)
   end
 end
+
+require_relative "air_test/version"
+require_relative "air_test/configuration"
+require_relative "air_test/notion_parser"
+require_relative "air_test/spec_generator"
+require_relative "air_test/github_client"
+require_relative "air_test/runner"
+
+# Load Rails engine if Rails is available (for Rake task support)
+require_relative "air_test/engine" if defined?(Rails)
