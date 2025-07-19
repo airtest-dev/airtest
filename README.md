@@ -95,12 +95,6 @@ GITHUB_BOT_TOKEN=ghp_xxx
 
 ---
 
-## 🧪 Tests (optional)
-
-If you want to test the gem’s services, you can add specs in the `spec/` folder.
-
----
-
 ## 🆘 Troubleshooting
 
 - **Notion or GitHub authentication error**: check your tokens.
