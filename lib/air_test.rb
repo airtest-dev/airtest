@@ -21,3 +21,8 @@ require_relative "air_test/runner"
 
 # Load Rails engine if Rails is available (for Rake task support)
 require_relative "air_test/engine" if defined?(Rails)
+
+# Also load Rake tasks directly if Rake is available (for development/testing)
+if defined?(Rake)
+  load File.expand_path("../tasks/air_test.rake", __FILE__)
+end
