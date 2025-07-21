@@ -10,6 +10,6 @@ require "rubocop/rake_task"
 RuboCop::RakeTask.new
 
 # Load AirTest Rake tasks for development
-load File.expand_path("lib/tasks/air_test.rake", __dir__)
+# load File.expand_path("lib/tasks/air_test.rake", __dir__)
 
 task default: %i[spec rubocop]
