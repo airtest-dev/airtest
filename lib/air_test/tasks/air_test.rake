@@ -2,7 +2,6 @@
 
 # Ensure the main gem is loaded
 require "air_test"
- puts ">>> Loading AirTest Rake tasks from #{__FILE__}"
 namespace :air_test do
   desc "Generate specs and PR from Notion tickets"
   task :generate_specs_from_notion, [:limit] do |_task, args|
@@ -22,7 +21,7 @@ namespace :air_test do
 
     limit = (args[:limit] || 5).to_i
     puts "🚀 Starting AirTest with limit: #{limit}"
-    
+
     begin
       runner = AirTest::Runner.new
       runner.run(limit: limit)
