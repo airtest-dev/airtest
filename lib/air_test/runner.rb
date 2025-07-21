@@ -20,9 +20,11 @@ module AirTest
         url = @notion.extract_ticket_url(ticket)
         puts "\n📋 Processing: FDR#{ticket_id} - #{title}"
         parsed_data = @notion.parse_ticket_content(ticket["id"])
-        next unless parsed_data && parsed_data[:feature] && !parsed_data[:feature].empty?
+        unless parsed_data && parsed_data[:feature] && !parsed_data[:feature].empty?
+          puts "⚠️  Skipping ticket FDR#{ticket_id} due to missing or empty feature."
+          next
+        end
 
-        slug = parsed_data[:feature].downcase.gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "")
         branch = "air_test/#{ticket_id}-#{title.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "")}"
         spec_path = @spec.generate_spec_from_parsed_data(ticket_id, parsed_data)
         step_path = @spec.generate_step_definitions_for_spec(spec_path)
