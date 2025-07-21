@@ -8,7 +8,7 @@ module AirTest
   class SpecGenerator
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def generate_spec_from_parsed_data(ticket_id, parsed_data, output_dir: "spec/features")
-      feature_slug = parsed_data[:feature].downcase.gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "")
+      feature_slug = parsed_data[:feature].downcase.gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "").slice(0, 50)
       filename = "#{feature_slug}_fdr#{ticket_id}.rb"
       filepath = File.join(output_dir, filename)
       FileUtils.mkdir_p(output_dir)
