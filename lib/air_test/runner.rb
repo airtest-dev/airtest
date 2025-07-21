@@ -23,7 +23,7 @@ module AirTest
         next unless parsed_data && parsed_data[:feature] && !parsed_data[:feature].empty?
 
         slug = parsed_data[:feature].downcase.gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "")
-        branch = "air_test/#{ticket_id}-#{slug}"
+        branch = "air_test/#{ticket_id}-#{title.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "")}"
         spec_path = @spec.generate_spec_from_parsed_data(ticket_id, parsed_data)
         step_path = @spec.generate_step_definitions_for_spec(spec_path)
         files_to_commit = [spec_path]
