@@ -10,7 +10,7 @@ module AirTest
       @notion_token = ENV.fetch("NOTION_TOKEN", nil)
       @notion_database_id = ENV.fetch("NOTION_DATABASE_ID", nil)
       @github_token = ENV["GITHUB_BOT_TOKEN"] || ENV.fetch("GITHUB_TOKEN", nil)
-      @repo = nil
+      @repo = ENV.fetch("REPO", nil)
     end
   end
 end

@@ -7,7 +7,19 @@ namespace :air_test do
   desc "Generate specs and PR from Notion tickets"
   task :generate_specs_from_notion, [:limit] do |_task, args|
     require "air_test/runner"
-    
+    AirTest.configure {} unless AirTest.configuration
+    config = AirTest.configuration
+
+    missing = []
+    missing << "NOTION_TOKEN" unless config.notion_token
+    missing << "NOTION_DATABASE_ID" unless config.notion_database_id
+    missing << "GITHUB_TOKEN" unless config.github_token
+    missing << "REPO" unless config.repo
+    unless missing.empty?
+      puts "❌ Missing required environment variables: #{missing.join(", ")}"
+      exit 1
+    end
+
     limit = (args[:limit] || 5).to_i
     puts "🚀 Starting AirTest with limit: #{limit}"
     
@@ -25,10 +37,8 @@ namespace :air_test do
   desc "Show AirTest configuration"
   task :config do
     require "air_test/configuration"
-    
-    # Initialize configuration if not already done
-    AirTest.configuration ||= AirTest::Configuration.new
-    
+    AirTest.configure {} unless AirTest.configuration
+
     config = AirTest.configuration
     puts "🔧 AirTest Configuration:"
     puts "  Notion Token: #{config.notion_token ? "Set" : "Not set"}"
