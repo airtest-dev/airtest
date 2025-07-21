@@ -17,6 +17,14 @@ module AirTest
       else
         system("git checkout -b #{branch}")
       end
+      # Set git user to bot
+      system('git config user.name "air-test-bot"')
+      system('git config user.email "jbarbedienne3@gmail.com"')
+      # Set remote to use bot token if available
+      if @github_token
+        repo_url = "github.com/#{@repo}.git"
+        system("git remote set-url origin https://#{@github_token}@#{repo_url}")
+      end
       files.each { |f| system("git add -f #{f}") }
       has_changes = !system("git diff --cached --quiet")
       system("git commit -m '#{commit_message}'") if has_changes
