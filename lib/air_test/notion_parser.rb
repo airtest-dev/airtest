@@ -1,14 +1,14 @@
-# Parses Notion tickets and extracts relevant information for spec generation in AirTest.
-# rubocop:disable Metrics/ClassLength
 # frozen_string_literal: true
 
 require "net/http"
 require "json"
 require "uri"
+require_relative "ticket_parser"
 
 module AirTest
-  # Parses Notion tickets and extracts relevant information for spec generation in AirTest.
-  class NotionParser
+  # Implements TicketParser for Notion integration.
+  class NotionTicketParser
+    include TicketParser
     def initialize(config = AirTest.configuration)
       @database_id = config.notion_database_id
       @notion_token = config.notion_token
@@ -254,5 +254,3 @@ module AirTest
     end
   end
 end
-
-# rubocop:enable Metrics/ClassLength
