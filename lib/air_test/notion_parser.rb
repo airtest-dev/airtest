@@ -26,9 +26,16 @@ module AirTest
 
     def parse_ticket_content(page_id)
       blocks = get_page_content(page_id)
+      puts "\n===== RAW NOTION BLOCKS ====="
+      puts JSON.pretty_generate(blocks)
       return nil unless blocks
-
-      parse_content(blocks)
+      normalized_blocks = normalize_blocks(blocks)
+      puts "\n===== NORMALIZED BLOCKS ====="
+      puts JSON.pretty_generate(normalized_blocks)
+      parsed_data = parse_content(normalized_blocks)
+      puts "\n===== PARSED DATA ====="
+      puts JSON.pretty_generate(parsed_data)
+      parsed_data
     end
 
     def extract_ticket_title(ticket)
@@ -219,6 +226,31 @@ module AirTest
       else
         ""
       end
+    end
+
+    # Normalize Notion blocks: split multi-line blocks into one-line synthetic paragraph blocks
+    def normalize_blocks(blocks)
+      normalized = []
+      blocks.each do |block|
+        block_type = block["type"]
+        text = if block[block_type] && block[block_type]["rich_text"]
+          block[block_type]["rich_text"].map { |rt| rt["plain_text"] }.join("")
+        else
+          ""
+        end
+        lines = text.split("\n").map(&:strip).reject(&:empty?)
+        if lines.size > 1
+          lines.each do |line|
+            normalized << {
+              "type" => "paragraph",
+              "paragraph" => { "rich_text" => [{ "plain_text" => line }] }
+            }
+          end
+        else
+          normalized << block
+        end
+      end
+      normalized
     end
   end
 end
