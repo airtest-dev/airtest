@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    air_test (0.1.5.4)
+    air_test (0.1.5.5)
       faraday-retry (~> 2.0)
       octokit (~> 7.0)
       rails (>= 6.0)
