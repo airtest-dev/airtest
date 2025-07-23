@@ -19,7 +19,7 @@ module AirTest
       end
       # Set git user to bot
       system('git config user.name "air-test-bot"')
-      system('git config user.email "jbarbedienne3@gmail.com"')
+      system('git config user.email "airtest.bot@gmail.com"')
       # Set remote to use bot token if available
       if @github_token
         repo_url = "github.com/#{@repo}.git"
