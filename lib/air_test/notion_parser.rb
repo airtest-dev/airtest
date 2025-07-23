@@ -17,7 +17,17 @@ module AirTest
 
     def fetch_tickets(limit: 5)
       uri = URI("#{@base_url}/databases/#{@database_id}/query")
-      response = make_api_request(uri, { page_size: 100 })
+      # Add filter for 'Not started' status
+      request_body = {
+        page_size: 100,
+        filter: {
+          property: 'Status',
+          select: {
+            equals: 'Not started'
+          }
+        }
+      }
+      response = make_api_request(uri, request_body)
       return [] unless response.code == "200"
 
       data = JSON.parse(response.body)
