@@ -84,11 +84,10 @@ module AirTest
       in_background_block = false
       background_steps = []
 
-      blocks.each_with_index do |block, idx|
+      blocks.each do |block|
         block_type = block["type"]
         text = extract_text(block[block_type]["rich_text"]) rescue ""
 
-        # Detect headings for feature, background, and scenario
         if %w[heading_1 heading_2 heading_3].include?(block_type)
           heading_text = text.strip
           if heading_text.downcase.include?("feature")
@@ -101,6 +100,7 @@ module AirTest
             in_feature_block = false
             in_scenario_block = false
           elsif heading_text.downcase.include?("scenario")
+            # Start a new scenario
             in_scenario_block = true
             in_feature_block = false
             in_background_block = false
@@ -112,7 +112,7 @@ module AirTest
             in_background_block = false
           end
         elsif block_type == "paragraph" && text.strip.downcase.start_with?("scenario:")
-          # Also detect scenario in paragraphs (for robustness)
+          # Start a new scenario from a paragraph
           in_scenario_block = true
           in_feature_block = false
           in_background_block = false
@@ -125,12 +125,14 @@ module AirTest
           elsif in_background_block
             background_steps << text
           elsif in_scenario_block && current_scenario
-            current_scenario[:steps] << text
+            # Only add as step if not a scenario heading
+            unless text.strip.downcase.start_with?("scenario:")
+              current_scenario[:steps] << text
+            end
           end
         elsif block_type == "callout"
           text = extract_text(block["callout"]["rich_text"])
           next if text.empty?
-
           if text.downcase.include?("tag")
             tags = extract_tags(text)
             parsed_data[:meta][:tags].concat(tags)
@@ -168,7 +170,7 @@ module AirTest
               in_steps = false
             end
           elsif %w[paragraph bulleted_list_item numbered_list_item].include?(block_type)
-            steps << text if in_steps && !text.empty?
+            steps << text if in_steps && !text.empty? && !text.strip.downcase.start_with?("scenario:")
           end
         end
         if steps.any?
