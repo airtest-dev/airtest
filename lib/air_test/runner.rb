@@ -35,8 +35,8 @@ module AirTest
         if has_changes
           pr_title = title
           scenarios_md = parsed_data[:scenarios].map.with_index(1) do |sc, _i|
-            steps = sc[:steps]&.join(" ")
-            "  - [ ] #{sc[:title]} – #{steps}"
+            steps = sc[:steps]&.map { |step| "      - #{step}" }&.join("\n")
+            "  - [ ] #{sc[:title]}\n#{steps}"
           end.join("\n")
           pr_body = <<~MD
               - **Story Notion :** #{url}

@@ -22,6 +22,7 @@ module AirTest
             f.puts "    pending '#{step}'"
           end
           f.puts "  end"
+          f.puts ""
         end
         f.puts "end"
       end
