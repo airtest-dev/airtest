@@ -26,15 +26,15 @@ module AirTest
 
     def parse_ticket_content(page_id)
       blocks = get_page_content(page_id)
-      puts "\n===== RAW NOTION BLOCKS ====="
-      puts JSON.pretty_generate(blocks)
+      # puts "\n===== RAW NOTION BLOCKS ====="
+      # puts JSON.pretty_generate(blocks)
       return nil unless blocks
       normalized_blocks = normalize_blocks(blocks)
-      puts "\n===== NORMALIZED BLOCKS ====="
-      puts JSON.pretty_generate(normalized_blocks)
+      # puts "\n===== NORMALIZED BLOCKS ====="
+      # puts JSON.pretty_generate(normalized_blocks)
       parsed_data = parse_content(normalized_blocks)
-      puts "\n===== PARSED DATA ====="
-      puts JSON.pretty_generate(parsed_data)
+      # puts "\n===== PARSED DATA ====="
+      # puts JSON.pretty_generate(parsed_data)
       parsed_data
     end
 
