@@ -49,6 +49,47 @@ Make sure your environment variables are set (in `.env`, your shell, or your CI/
 
 ---
 
+## 📝 Creating Notion Tickets with Gherkin Format
+
+To ensure that your Notion tickets are compatible with the air_test automation, follow these guidelines when creating your tickets:
+
+### 1. Create a New Page in Notion
+
+- Start by creating a new page in your Notion workspace for each ticket.
+
+### 2. Use the Gherkin Syntax
+
+- Each ticket should follow the Gherkin syntax, which includes the following keywords:
+  - **Feature**: A high-level description of the feature being implemented.
+  - **Scenario**: A specific situation or case that describes how the feature should behave.
+  - **Given**: The initial context or state before the scenario starts.
+  - **When**: The action that triggers the scenario.
+  - **Then**: The expected outcome or result of the action.
+
+### 3. Example Structure
+
+Here’s an example of how to structure a ticket in Notion:
+
+Feature: User Login
+Scenario: Successful login with valid credentials
+Given the user is on the login page
+When the user enters valid credentials
+Then the user should be redirected to the dashboard
+Scenario: Unsuccessful login with invalid credentials
+Given the user is on the login page
+When the user enters invalid credentials
+Then an error message should be displayed
+
+### 4. Additional Tips
+
+- Ensure that each ticket is clearly titled and contains all necessary scenarios.
+- Use bullet points or toggle lists in Notion to organize multiple scenarios under a single feature.
+- Make sure to keep the Gherkin syntax consistent across all tickets for better parsing.
+
+By following these guidelines, you can create Notion tickets that are ready to be parsed by the air_test automation tool.
+
+---
+
 ## 🛠 Usage
 
 Run the automated workflow from your Rails project terminal:
@@ -74,17 +115,6 @@ bundle exec rake air_test:generate_specs_from_notion
 
 ---
 
-## 🧩 Gem Structure
-
-- `lib/air_test/configuration.rb`: centralized configuration
-- `lib/air_test/notion_parser.rb`: Notion extraction and parsing
-- `lib/air_test/spec_generator.rb`: spec and step file generation
-- `lib/air_test/github_client.rb`: git and GitHub PR management
-- `lib/air_test/runner.rb`: workflow orchestrator
-- `lib/tasks/air_test.rake`: Rake task to launch the automation
-
----
-
 ## 📝 Example .env
 
 ```
@@ -100,17 +130,6 @@ GITHUB_BOT_TOKEN=ghp_xxx
 - **Notion or GitHub authentication error**: check your tokens.
 - **PR not created**: make sure the branch contains commits different from `main`.
 - **Permission issues**: ensure the GitHub bot has access to the repo.
-
----
-
-## 📦 Publishing the Gem (optional)
-
-To publish the gem on RubyGems:
-
-```sh
-gem build air_test.gemspec
-gem push air_test-x.y.z.gem
-```
 
 ---
 
