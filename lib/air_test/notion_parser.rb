@@ -81,7 +81,8 @@ module AirTest
       current_scenario = nil
       in_feature_block = false
       in_scenario_block = false
-      last_block_type = nil
+      in_background_block = false
+      background_steps = []
       blocks.each_with_index do |block, idx|
         case block["type"]
         when "heading_1", "heading_2", "heading_3"
@@ -89,15 +90,22 @@ module AirTest
           if heading_text.downcase.include?("feature")
             in_feature_block = true
             in_scenario_block = false
+            in_background_block = false
             parsed_data[:feature] = heading_text
+          elsif heading_text.strip.downcase == "background:"
+            in_background_block = true
+            in_feature_block = false
+            in_scenario_block = false
           elsif heading_text.downcase.include?("scenario")
             in_scenario_block = true
             in_feature_block = false
+            in_background_block = false
             current_scenario = { title: heading_text, steps: [] }
             parsed_data[:scenarios] << current_scenario
           else
             in_feature_block = false
             in_scenario_block = false
+            in_background_block = false
           end
         when "paragraph"
           text = extract_text(block["paragraph"]["rich_text"])
@@ -105,6 +113,8 @@ module AirTest
 
           if in_feature_block
             parsed_data[:feature] += "\n#{text}"
+          elsif in_background_block
+            background_steps << text
           elsif in_scenario_block && current_scenario
             current_scenario[:steps] << text
           end
@@ -114,6 +124,8 @@ module AirTest
 
           if in_feature_block
             parsed_data[:feature] += "\n• #{text}"
+          elsif in_background_block
+            background_steps << text
           elsif in_scenario_block && current_scenario
             current_scenario[:steps] << text
           end
@@ -132,7 +144,12 @@ module AirTest
             parsed_data[:meta][:assignee] = extract_assignee(text)
           end
         end
-        last_block_type = block["type"]
+      end
+      # Prepend background steps to each scenario
+      if background_steps.any?
+        parsed_data[:scenarios].each do |scenario|
+          scenario[:steps] = background_steps + scenario[:steps]
+        end
       end
       # Handle case where there is only one scenario and no explicit scenario heading
       if parsed_data[:scenarios].empty?
