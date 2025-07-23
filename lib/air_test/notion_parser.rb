@@ -83,10 +83,14 @@ module AirTest
       in_scenario_block = false
       in_background_block = false
       background_steps = []
+
       blocks.each_with_index do |block, idx|
-        case block["type"]
-        when "heading_1", "heading_2", "heading_3"
-          heading_text = extract_text(block[block["type"]]["rich_text"])
+        block_type = block["type"]
+        text = extract_text(block[block_type]["rich_text"]) rescue ""
+
+        # Detect headings for feature, background, and scenario
+        if %w[heading_1 heading_2 heading_3].include?(block_type)
+          heading_text = text.strip
           if heading_text.downcase.include?("feature")
             in_feature_block = true
             in_scenario_block = false
@@ -107,10 +111,15 @@ module AirTest
             in_scenario_block = false
             in_background_block = false
           end
-        when "paragraph"
-          text = extract_text(block["paragraph"]["rich_text"])
+        elsif block_type == "paragraph" && text.strip.downcase.start_with?("scenario:")
+          # Also detect scenario in paragraphs (for robustness)
+          in_scenario_block = true
+          in_feature_block = false
+          in_background_block = false
+          current_scenario = { title: text.strip, steps: [] }
+          parsed_data[:scenarios] << current_scenario
+        elsif %w[paragraph bulleted_list_item numbered_list_item].include?(block_type)
           next if text.empty?
-
           if in_feature_block
             parsed_data[:feature] += "\n#{text}"
           elsif in_background_block
@@ -118,18 +127,7 @@ module AirTest
           elsif in_scenario_block && current_scenario
             current_scenario[:steps] << text
           end
-        when "bulleted_list_item", "numbered_list_item"
-          text = extract_text(block[block["type"]]["rich_text"])
-          next if text.empty?
-
-          if in_feature_block
-            parsed_data[:feature] += "\n• #{text}"
-          elsif in_background_block
-            background_steps << text
-          elsif in_scenario_block && current_scenario
-            current_scenario[:steps] << text
-          end
-        when "callout"
+        elsif block_type == "callout"
           text = extract_text(block["callout"]["rich_text"])
           next if text.empty?
 
@@ -145,21 +143,23 @@ module AirTest
           end
         end
       end
+
       # Prepend background steps to each scenario
       if background_steps.any?
         parsed_data[:scenarios].each do |scenario|
           scenario[:steps] = background_steps + scenario[:steps]
         end
       end
-      # Handle case where there is only one scenario and no explicit scenario heading
+
+      # Fallback: If no scenarios found, treat all steps after feature as a single scenario
       if parsed_data[:scenarios].empty?
-        # Try to find steps after the feature heading
         steps = []
         in_steps = false
         blocks.each do |block|
-          case block["type"]
-          when "heading_1", "heading_2", "heading_3"
-            heading_text = extract_text(block[block["type"]]["rich_text"])
+          block_type = block["type"]
+          text = extract_text(block[block_type]["rich_text"] || block["paragraph"]["rich_text"]) rescue ""
+          if %w[heading_1 heading_2 heading_3].include?(block_type)
+            heading_text = text.strip
             if heading_text.downcase.include?("feature")
               in_steps = true
             elsif heading_text.downcase.include?("scenario")
@@ -167,16 +167,15 @@ module AirTest
             else
               in_steps = false
             end
-          when "paragraph", "bulleted_list_item", "numbered_list_item"
-            text = extract_text(block[block["type"]]["rich_text"] || block["paragraph"]["rich_text"])
-            next if text.empty?
-            steps << text if in_steps
+          elsif %w[paragraph bulleted_list_item numbered_list_item].include?(block_type)
+            steps << text if in_steps && !text.empty?
           end
         end
         if steps.any?
           parsed_data[:scenarios] << { title: "Scenario", steps: steps }
         end
       end
+
       parsed_data[:feature] = parsed_data[:feature].strip
       parsed_data[:meta][:tags] = parsed_data[:meta][:tags].uniq
       parsed_data
