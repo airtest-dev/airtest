@@ -81,7 +81,8 @@ module AirTest
       current_scenario = nil
       in_feature_block = false
       in_scenario_block = false
-      blocks.each do |block|
+      last_block_type = nil
+      blocks.each_with_index do |block, idx|
         case block["type"]
         when "heading_1", "heading_2", "heading_3"
           heading_text = extract_text(block[block["type"]]["rich_text"])
@@ -130,6 +131,33 @@ module AirTest
           elsif text.downcase.include?("assignee")
             parsed_data[:meta][:assignee] = extract_assignee(text)
           end
+        end
+        last_block_type = block["type"]
+      end
+      # Handle case where there is only one scenario and no explicit scenario heading
+      if parsed_data[:scenarios].empty?
+        # Try to find steps after the feature heading
+        steps = []
+        in_steps = false
+        blocks.each do |block|
+          case block["type"]
+          when "heading_1", "heading_2", "heading_3"
+            heading_text = extract_text(block[block["type"]]["rich_text"])
+            if heading_text.downcase.include?("feature")
+              in_steps = true
+            elsif heading_text.downcase.include?("scenario")
+              in_steps = true
+            else
+              in_steps = false
+            end
+          when "paragraph", "bulleted_list_item", "numbered_list_item"
+            text = extract_text(block[block["type"]]["rich_text"] || block["paragraph"]["rich_text"])
+            next if text.empty?
+            steps << text if in_steps
+          end
+        end
+        if steps.any?
+          parsed_data[:scenarios] << { title: "Scenario", steps: steps }
         end
       end
       parsed_data[:feature] = parsed_data[:feature].strip
