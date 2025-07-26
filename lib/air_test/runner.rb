@@ -22,6 +22,7 @@ module AirTest
     end
 
     def run(limit: 5)
+      @config.validate!
       tickets = @parser.fetch_tickets(limit: limit)
       # Filter for 'Not started' tickets (assuming each parser returns only those, or filter here if needed)
       puts "🔍 Found #{tickets.length} tickets"
