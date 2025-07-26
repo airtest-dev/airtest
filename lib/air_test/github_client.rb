@@ -6,9 +6,9 @@ module AirTest
   # Handles GitHub API interactions for AirTest, such as commits and pull requests.
   class GithubClient
     def initialize(config = AirTest.configuration)
-      @github_token = config.github_token
+      @token = config.github[:token]
       @repo = config.repo || detect_repo_from_git
-      @client = Octokit::Client.new(access_token: @github_token) if @github_token
+      @client = Octokit::Client.new(access_token: @token) if @token
     end
 
     def commit_and_push_branch(branch, files, commit_message)
@@ -21,9 +21,9 @@ module AirTest
       system('git config user.name "air-test-bot"')
       system('git config user.email "airtest.bot@gmail.com"')
       # Set remote to use bot token if available
-      if @github_token
+      if @token
         repo_url = "github.com/#{@repo}.git"
-        system("git remote set-url origin https://#{@github_token}@#{repo_url}")
+        system("git remote set-url origin https://#{@token}@#{repo_url}")
       end
       files.each { |f| system("git add -f #{f}") }
       has_changes = !system("git diff --cached --quiet")
