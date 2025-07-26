@@ -14,7 +14,10 @@ end
 
 require_relative "air_test/version"
 require_relative "air_test/configuration"
-require_relative "air_test/notion_parser"
+require_relative "air_test/ticket_parser"
+require_relative "air_test/notion_ticket_parser"
+require_relative "air_test/jira_ticket_parser"
+require_relative "air_test/monday_ticket_parser"
 require_relative "air_test/spec_generator"
 require_relative "air_test/github_client"
 require_relative "air_test/runner"
