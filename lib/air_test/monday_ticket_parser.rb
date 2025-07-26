@@ -19,7 +19,7 @@ module AirTest
       # First, get all items from the board
       query = <<~GRAPHQL
         query {
-          boards(ids: @board_id) {
+          boards(ids: #{@board_id}) {
             items_page {
               items {
                 id
