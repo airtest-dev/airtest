@@ -9,9 +9,9 @@ module AirTest
   class MondayTicketParser
     include TicketParser
     def initialize(config = AirTest.configuration)
-      @api_token = config.monday_token
-      @board_id = config.monday_board_id || '2069947678'
-      @domain = config.monday_domain || 'boulandjuliens-team.monday.com'
+      @api_token = config.monday[:token]
+      @board_id = config.monday[:board_id]
+      @domain = config.monday[:domain]
       @base_url = 'https://api.monday.com/v2'
     end
 
@@ -19,7 +19,7 @@ module AirTest
       # First, get all items from the board
       query = <<~GRAPHQL
         query {
-          boards(ids: #{@board_id}) {
+          boards(ids: @board_id) {
             items_page {
               items {
                 id
@@ -39,7 +39,7 @@ module AirTest
       return [] unless response['data']
 
       items = response.dig('data', 'boards', 0, 'items_page', 'items') || []
-      
+
       # Filter for items with "Not Started" status
       not_started_items = items.select do |item|
         status_column = item['column_values'].find { |cv| cv['id'] == 'project_status' }
