@@ -9,10 +9,10 @@ module AirTest
   class JiraTicketParser
     include TicketParser
     def initialize(config = AirTest.configuration)
-      @domain = config.jira_domain || 'https://boulandjulien.atlassian.net'
-      @api_key = config.jira_token
-      @project_key = config.jira_project_id || 'SCRUM'
-      @email = config.jira_email || ENV['JIRA_EMAIL']
+      @domain = config.jira[:domain]
+      @api_key = config.jira[:token]
+      @project_key = config.jira[:project_id]
+      @email = config.jira[:email] || ENV['JIRA_EMAIL']
     end
 
     def fetch_tickets(limit: 5)
