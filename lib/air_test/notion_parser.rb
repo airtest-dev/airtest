@@ -10,8 +10,8 @@ module AirTest
   class NotionTicketParser
     include TicketParser
     def initialize(config = AirTest.configuration)
-      @database_id = config.notion_database_id
-      @notion_token = config.notion_token
+      @database_id = config.notion[:database_id]
+      @notion_token = config.notion[:token]
       @base_url = "https://api.notion.com/v1"
     end
 
