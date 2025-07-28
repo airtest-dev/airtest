@@ -55,6 +55,9 @@ module AirTest
               - **Feature** : #{parsed_data[:feature]}
               - **Scénarios** :
             #{scenarios_md}
+            - **Want to help us improve airtest?**
+            Leave feedback [here](http://bit.ly/4o5rinU)
+            or [join the community](https://discord.gg/ggnBvhtw7E)
           MD
           pr = @github.create_pull_request(branch, pr_title, pr_body)
           puts "✅ Pull Request créée : #{pr.html_url}" if pr
