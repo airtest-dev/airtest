@@ -23,4 +23,4 @@ module AirTest
       raise NotImplementedError
     end
   end
-end 
+end

@@ -9,24 +9,24 @@ module AirTest
     def initialize
       @tool = ENV.fetch("AIRTEST_TOOL", "notion")
       @notion = {
-        token: ENV["NOTION_TOKEN"],
-        database_id: ENV["NOTION_DATABASE_ID"]
+        token: ENV.fetch("NOTION_TOKEN", nil),
+        database_id: ENV.fetch("NOTION_DATABASE_ID", nil)
       }
       @jira = {
-        token: ENV["JIRA_TOKEN"],
-        project_id: ENV["JIRA_PROJECT_ID"],
-        domain: ENV["JIRA_DOMAIN"],
-        email: ENV["JIRA_EMAIL"]
+        token: ENV.fetch("JIRA_TOKEN", nil),
+        project_id: ENV.fetch("JIRA_PROJECT_ID", nil),
+        domain: ENV.fetch("JIRA_DOMAIN", nil),
+        email: ENV.fetch("JIRA_EMAIL", nil)
       }
       @monday = {
-        token: ENV["MONDAY_TOKEN"],
-        board_id: ENV["MONDAY_BOARD_ID"],
-        domain: ENV["MONDAY_DOMAIN"]
+        token: ENV.fetch("MONDAY_TOKEN", nil),
+        board_id: ENV.fetch("MONDAY_BOARD_ID", nil),
+        domain: ENV.fetch("MONDAY_DOMAIN", nil)
       }
       @github = {
-        token: ENV["GITHUB_BOT_TOKEN"] || ENV["GITHUB_TOKEN"]
+        token: ENV["GITHUB_BOT_TOKEN"] || ENV.fetch("GITHUB_TOKEN", nil)
       }
-      @repo = ENV["REPO"]
+      @repo = ENV.fetch("REPO", nil)
     end
 
     def validate!

@@ -21,9 +21,9 @@ module AirTest
       request_body = {
         page_size: 100,
         filter: {
-          property: 'Status',
+          property: "Status",
           select: {
-            equals: 'Not started'
+            equals: "Not started"
           }
         }
       }
@@ -39,13 +39,13 @@ module AirTest
       # puts "\n===== RAW NOTION BLOCKS ====="
       # puts JSON.pretty_generate(blocks)
       return nil unless blocks
+
       normalized_blocks = normalize_blocks(blocks)
       # puts "\n===== NORMALIZED BLOCKS ====="
       # puts JSON.pretty_generate(normalized_blocks)
-      parsed_data = parse_content(normalized_blocks)
+      parse_content(normalized_blocks)
       # puts "\n===== PARSED DATA ====="
       # puts JSON.pretty_generate(parsed_data)
-      parsed_data
     end
 
     def extract_ticket_title(ticket)
@@ -103,7 +103,11 @@ module AirTest
 
       blocks.each do |block|
         block_type = block["type"]
-        text = extract_text(block[block_type]["rich_text"]) rescue ""
+        text = begin
+          extract_text(block[block_type]["rich_text"])
+        rescue StandardError
+          ""
+        end
 
         if %w[heading_1 heading_2 heading_3].include?(block_type)
           heading_text = text.strip
@@ -137,19 +141,19 @@ module AirTest
           parsed_data[:scenarios] << current_scenario
         elsif %w[paragraph bulleted_list_item numbered_list_item].include?(block_type)
           next if text.empty?
+
           if in_feature_block
             parsed_data[:feature] += "\n#{text}"
           elsif in_background_block
             background_steps << text
           elsif in_scenario_block && current_scenario
             # Only add as step if not a scenario heading
-            unless text.strip.downcase.start_with?("scenario:")
-              current_scenario[:steps] << text
-            end
+            current_scenario[:steps] << text unless text.strip.downcase.start_with?("scenario:")
           end
         elsif block_type == "callout"
           text = extract_text(block["callout"]["rich_text"])
           next if text.empty?
+
           if text.downcase.include?("tag")
             tags = extract_tags(text)
             parsed_data[:meta][:tags].concat(tags)
@@ -176,23 +180,19 @@ module AirTest
         in_steps = false
         blocks.each do |block|
           block_type = block["type"]
-          text = extract_text(block[block_type]["rich_text"] || block["paragraph"]["rich_text"]) rescue ""
+          text = begin
+            extract_text(block[block_type]["rich_text"] || block["paragraph"]["rich_text"])
+          rescue StandardError
+            ""
+          end
           if %w[heading_1 heading_2 heading_3].include?(block_type)
             heading_text = text.strip
-            if heading_text.downcase.include?("feature")
-              in_steps = true
-            elsif heading_text.downcase.include?("scenario")
-              in_steps = true
-            else
-              in_steps = false
-            end
+            in_steps = heading_text.downcase.include?("feature")) || heading_text.downcase.include?("scenario")
           elsif %w[paragraph bulleted_list_item numbered_list_item].include?(block_type)
             steps << text if in_steps && !text.empty? && !text.strip.downcase.start_with?("scenario:")
           end
         end
-        if steps.any?
-          parsed_data[:scenarios] << { title: "Scenario", steps: steps }
-        end
+        parsed_data[:scenarios] << { title: "Scenario", steps: steps } if steps.any?
       end
 
       parsed_data[:feature] = parsed_data[:feature].strip
@@ -244,10 +244,10 @@ module AirTest
       blocks.each do |block|
         block_type = block["type"]
         text = if block[block_type] && block[block_type]["rich_text"]
-          block[block_type]["rich_text"].map { |rt| rt["plain_text"] }.join("")
-        else
-          ""
-        end
+                 block[block_type]["rich_text"].map { |rt| rt["plain_text"] }.join
+               else
+                 ""
+               end
         lines = text.split("\n").map(&:strip).reject(&:empty?)
         if lines.size > 1
           lines.each do |line|
