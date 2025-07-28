@@ -6,20 +6,32 @@ module AirTest
   # Runs the main automation workflow for AirTest, orchestrating Notion parsing and GitHub actions.
   class Runner
     def initialize(config = AirTest.configuration)
-      @notion = NotionParser.new(config)
+      @config = config
+      @parser = case config.tool.to_s.downcase
+                when "notion"
+                  NotionTicketParser.new(config)
+                when "jira"
+                  JiraTicketParser.new(config)
+                when "monday"
+                  MondayTicketParser.new(config)
+                else
+                  raise "Unknown tool: #{config.tool}"
+                end
       @spec = SpecGenerator.new
       @github = GithubClient.new(config)
     end
 
     def run(limit: 5)
-      tickets = @notion.fetch_tickets(limit: limit)
+      @config.validate!
+      tickets = @parser.fetch_tickets(limit: limit)
+      # Filter for 'Not started' tickets (assuming each parser returns only those, or filter here if needed)
       puts "🔍 Found #{tickets.length} tickets"
       tickets.each do |ticket|
-        ticket_id = @notion.extract_ticket_id(ticket)
-        title = @notion.extract_ticket_title(ticket)
-        url = @notion.extract_ticket_url(ticket)
+        ticket_id = @parser.extract_ticket_id(ticket)
+        title = @parser.extract_ticket_title(ticket)
+        url = @parser.extract_ticket_url(ticket)
         puts "\n📋 Processing: FDR#{ticket_id} - #{title}"
-        parsed_data = @notion.parse_ticket_content(ticket["id"])
+        parsed_data = @parser.parse_ticket_content(ticket["id"])
         unless parsed_data && parsed_data[:feature] && !parsed_data[:feature].empty?
           puts "⚠️  Skipping ticket FDR#{ticket_id} due to missing or empty feature."
           next
