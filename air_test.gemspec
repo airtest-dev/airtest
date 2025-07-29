@@ -45,6 +45,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency "faraday-retry", "~> 2.0"
   spec.add_dependency "octokit", "~> 7.0"
 
+  # CLI dependencies
+  spec.add_dependency "tty-prompt", "~> 0.23"
+
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 end
