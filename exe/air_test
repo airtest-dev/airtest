@@ -18,17 +18,31 @@ def show_help
     Usage: air_test [command] [options]
 
     Commands:
-      init [--silent]     Initialize AirTest configuration
-      help                Show this help message
+      init [--silent]           Initialize AirTest configuration
+      generate [options]        Generate specs from tickets
+      create-pr [options]       Create PR for specific ticket
+      help                      Show this help message
 
-    Options:
-      --silent            Run in silent mode (use defaults)
-      --help              Show this help message
+    Generate Options:
+      --interactive             Interactive ticket selection
+      --search "keyword"        Search tickets by keyword
+      --dry-run                Preview changes without creating files
+      --no-pr                  Disable PR creation
+
+    Create PR Options:
+      --ticket-id ID           Ticket ID to create PR for
+
+    Global Options:
+      --silent                 Run in silent mode (use defaults)
+      --help                   Show this help message
 
     Examples:
-      air_test init              # Interactive initialization
-      air_test init --silent     # Silent initialization with defaults
-      air_test help              # Show this help
+      air_test init                    # Interactive initialization
+      air_test init --silent           # Silent initialization with defaults
+      air_test generate --interactive  # Interactive ticket selection
+      air_test generate --search "webhook" --dry-run
+      air_test create-pr --ticket-id 3 # Create PR for ticket #3
+      air_test help                    # Show this help
   HELP
 end
 
@@ -40,6 +54,12 @@ def main
   when 'init'
     cli = AirTest::CLI.new
     cli.init(silent: silent)
+  when 'generate'
+    cli = AirTest::CLI.new
+    cli.generate(ARGV[1..-1])
+  when 'create-pr'
+    cli = AirTest::CLI.new
+    cli.create_pr(ARGV[1..-1])
   when 'help', '--help', '-h', nil
     show_help
   else

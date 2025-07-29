@@ -187,7 +187,7 @@ module AirTest
           end
           if %w[heading_1 heading_2 heading_3].include?(block_type)
             heading_text = text.strip
-            in_steps = heading_text.downcase.include?("feature")) || heading_text.downcase.include?("scenario")
+            in_steps = heading_text.downcase.include?("feature") || heading_text.downcase.include?("scenario")
           elsif %w[paragraph bulleted_list_item numbered_list_item].include?(block_type)
             steps << text if in_steps && !text.empty? && !text.strip.downcase.start_with?("scenario:")
           end
