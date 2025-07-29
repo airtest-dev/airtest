@@ -1,10 +1,15 @@
 # air_test
 
-Automate the generation of Turnip/RSpec specs from Notion tickets, create branches, commits, pushes, and GitHub Pull Requests—all with a single Rake command.
+Automate the generation of Turnip/RSpec specs from Notion tickets, create branches, commits, pushes, and GitHub Pull Requests—all with a single command.
 
 ## 🚀 Features
 
-- Fetches Notion tickets (Gherkin format)
+- **Multi-platform support**: Works with Notion, Jira, and Monday.com
+- **Interactive CLI**: Choose which tickets to process
+- **Search and filtering**: Find tickets by keyword
+- **Dry-run mode**: Preview changes before applying them
+- **Flexible PR creation**: Generate specs with or without automatic PRs
+- Fetches tickets (Gherkin format)
 - Parses and extracts features/scenarios
 - Generates Turnip/RSpec spec files and matching step definitions
 - Creates a dedicated branch, commits, pushes
@@ -31,9 +36,96 @@ bundle install
 
 ---
 
+## 🛠 Quick Start
+
+### 1. Initialize Configuration
+
+Set up your project configuration interactively:
+
+```sh
+air_test init
+```
+
+This will:
+- Ask which ticketing tool you use (Notion, Jira, or Monday)
+- Configure your preferences (auto PR creation, dev assignee, etc.)
+- Create `.airtest.yml` configuration file
+- Create example environment file
+- Set up necessary directories
+
+For silent setup with defaults:
+```sh
+air_test init --silent
+```
+
+### 2. Set Environment Variables
+
+Copy the example environment file and fill in your tokens:
+
+```sh
+cp .env.air_test.example .env
+# Edit .env with your actual tokens
+```
+
+### 3. Generate Specs
+
+#### Interactive Mode (Recommended)
+```sh
+air_test generate --interactive
+```
+Shows you a list of available tickets and lets you choose which ones to process.
+
+#### Search and Filter
+```sh
+air_test generate --search "webhook"
+```
+Only processes tickets containing "webhook" in the title or content.
+
+#### Preview Mode
+```sh
+air_test generate --dry-run
+```
+Shows what would be generated without creating files or PRs.
+
+#### Disable PR Creation
+```sh
+air_test generate --no-pr
+```
+Generates spec files locally without creating Pull Requests.
+
+---
+
 ## ⚙️ Configuration
 
-Create an initializer in your Rails project:  
+### CLI Configuration (`.airtest.yml`)
+
+The `air_test init` command creates a `.airtest.yml` file with your preferences:
+
+```yaml
+tool: notion                    # Your ticketing tool (notion/jira/monday)
+auto_pr: 'yes'                  # Enable auto PR creation
+dev_assignee: 'your-name'       # Default dev assignee
+interactive_mode: 'yes'         # Enable interactive mode by default
+notion:
+  token: ENV["NOTION_TOKEN"]
+  database_id: ENV["NOTION_DATABASE_ID"]
+jira:
+  token: ENV["JIRA_TOKEN"]
+  project_id: ENV["JIRA_PROJECT_ID"]
+  domain: ENV["JIRA_DOMAIN"]
+  email: ENV["JIRA_EMAIL"]
+monday:
+  token: ENV["MONDAY_TOKEN"]
+  board_id: ENV["MONDAY_BOARD_ID"]
+  domain: ENV["MONDAY_DOMAIN"]
+github:
+  token: ENV["GITHUB_BOT_TOKEN"]
+  repo: 'your-org/your-repo'
+```
+
+### Rails Initializer (Optional)
+
+For Rails projects, you can also create an initializer:  
 `config/initializers/air_test.rb`
 
 ```ruby
@@ -45,17 +137,15 @@ AirTest.configure do |config|
 end
 ```
 
-Make sure your environment variables are set (in `.env`, your shell, or your CI/CD).
-
 ---
 
-## 📝 Creating Notion Tickets with Gherkin Format
+## 📝 Creating Tickets with Gherkin Format
 
-To ensure that your Notion tickets are compatible with the air_test automation, follow these guidelines when creating your tickets:
+To ensure that your tickets are compatible with the air_test automation, follow these guidelines when creating your tickets:
 
-### 1. Create a New Page in Notion
+### 1. Create a New Page/Ticket
 
-- Start by creating a new page in your Notion workspace for each ticket.
+- Start by creating a new page in your Notion workspace, Jira issue, or Monday.com item for each ticket.
 
 ### 2. Use the Gherkin Syntax
 
@@ -68,68 +158,117 @@ To ensure that your Notion tickets are compatible with the air_test automation, 
 
 ### 3. Example Structure
 
-Here’s an example of how to structure a ticket in Notion:
+Here's an example of how to structure a ticket:
 
+```
 Feature: User Login
 Scenario: Successful login with valid credentials
 Given the user is on the login page
 When the user enters valid credentials
 Then the user should be redirected to the dashboard
+
 Scenario: Unsuccessful login with invalid credentials
 Given the user is on the login page
 When the user enters invalid credentials
 Then an error message should be displayed
+```
 
 ### 4. Additional Tips
 
 - Ensure that each ticket is clearly titled and contains all necessary scenarios.
-- Use bullet points or toggle lists in Notion to organize multiple scenarios under a single feature.
+- Use bullet points or toggle lists to organize multiple scenarios under a single feature.
 - Make sure to keep the Gherkin syntax consistent across all tickets for better parsing.
-
-By following these guidelines, you can create Notion tickets that are ready to be parsed by the air_test automation tool.
 
 ---
 
-## 🛠 Usage
+## 🛠 CLI Commands
 
-Run the automated workflow from your Rails project terminal:
+### `air_test init [--silent]`
+Initialize AirTest configuration for your project.
 
+**Options:**
+- `--silent`: Use default values without prompts
+
+**Examples:**
 ```sh
-bundle exec rake air_test:generate_specs_from_notion
+air_test init                    # Interactive setup
+air_test init --silent          # Silent setup with defaults
 ```
 
-- This will:
-  - Fetch Notion tickets
-  - Generate Turnip/RSpec specs and step files
-  - Create a branch, commit, push
-  - Open a Pull Request on GitHub with a rich template
+### `air_test generate [options]`
+Generate specs from tickets with advanced filtering and selection.
+
+**Options:**
+- `--interactive`: Interactive ticket selection
+- `--search "keyword"`: Search tickets by keyword
+- `--dry-run`: Preview changes without creating files
+- `--no-pr`: Disable PR creation
+
+**Examples:**
+```sh
+air_test generate                    # Process all ready tickets
+air_test generate --interactive     # Choose tickets interactively
+air_test generate --search "webhook" --dry-run
+air_test generate --no-pr           # Generate files only, no PRs
+```
+
+### `air_test create-pr --ticket-id ID`
+Create a Pull Request for a specific ticket (coming soon).
+
+**Examples:**
+```sh
+air_test create-pr --ticket-id 123
+```
+
+### `air_test help`
+Show help information and usage examples.
 
 ---
 
 ## 📋 Requirements
 
-- A Notion API token with access to your database
-- A GitHub token with push and PR creation rights
-- A configured remote git repository (`git remote -v`)
-- The folders `spec/features` and `spec/steps` (created automatically if needed)
+### Environment Variables
 
----
-
-## 📝 Example .env
-
+#### For Notion:
 ```
 NOTION_TOKEN=secret_xxx
 NOTION_DATABASE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 GITHUB_BOT_TOKEN=ghp_xxx
 ```
 
+#### For Jira:
+```
+JIRA_TOKEN=your_jira_token
+JIRA_PROJECT_ID=your_project_id
+JIRA_DOMAIN=your_domain.atlassian.net
+JIRA_EMAIL=your_email@example.com
+GITHUB_BOT_TOKEN=ghp_xxx
+```
+
+#### For Monday.com:
+```
+MONDAY_TOKEN=your_monday_token
+MONDAY_BOARD_ID=your_board_id
+MONDAY_DOMAIN=your_domain.monday.com
+GITHUB_BOT_TOKEN=ghp_xxx
+```
+
+### System Requirements
+
+- A ticketing tool API token with access to your tickets
+- A GitHub token with push and PR creation rights
+- A configured remote git repository (`git remote -v`)
+- The folders `spec/features` and `spec/steps` (created automatically if needed)
+
 ---
 
 ## 🆘 Troubleshooting
 
-- **Notion or GitHub authentication error**: check your tokens.
-- **PR not created**: make sure the branch contains commits different from `main`.
-- **Permission issues**: ensure the GitHub bot has access to the repo.
+- **Configuration not found**: Run `air_test init` to set up configuration
+- **Authentication error**: Check your API tokens in environment variables
+- **No tickets found**: Verify your ticketing tool configuration and permissions
+- **PR not created**: Make sure the branch contains commits different from `main`
+- **Permission issues**: Ensure the GitHub bot has access to the repo
 
 ---
 
@@ -142,5 +281,3 @@ GITHUB_BOT_TOKEN=ghp_xxx
 
 **Need an integration example or install script?**  
 Open an issue or contact me!
-
----
