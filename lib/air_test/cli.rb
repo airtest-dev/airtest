@@ -9,6 +9,7 @@ module AirTest
   class CLI
     def initialize
       @prompt = TTY::Prompt.new
+      load_env_files
     end
 
     def init(silent: false)
@@ -152,25 +153,25 @@ module AirTest
     end
 
     def initialize_airtest_config(config)
-      # Initialize AirTest configuration with environment variables
+      # Initialize AirTest configuration with values from config file
       AirTest.configure do |airtest_config|
         case config['tool']
         when 'notion'
-          airtest_config.notion[:token] = ENV['NOTION_TOKEN']
-          airtest_config.notion[:database_id] = ENV['NOTION_DATABASE_ID']
+          airtest_config.notion[:token] = config['notion']['token']
+          airtest_config.notion[:database_id] = config['notion']['database_id']
         when 'jira'
-          airtest_config.jira[:token] = ENV['JIRA_TOKEN']
-          airtest_config.jira[:project_id] = ENV['JIRA_PROJECT_ID']
-          airtest_config.jira[:domain] = ENV['JIRA_DOMAIN']
-          airtest_config.jira[:email] = ENV['JIRA_EMAIL']
+          airtest_config.jira[:token] = config['jira']['token']
+          airtest_config.jira[:project_id] = config['jira']['project_id']
+          airtest_config.jira[:domain] = config['jira']['domain']
+          airtest_config.jira[:email] = config['jira']['email']
         when 'monday'
-          airtest_config.monday[:token] = ENV['MONDAY_TOKEN']
-          airtest_config.monday[:board_id] = ENV['MONDAY_BOARD_ID']
-          airtest_config.monday[:domain] = ENV['MONDAY_DOMAIN']
+          airtest_config.monday[:token] = config['monday']['token']
+          airtest_config.monday[:board_id] = config['monday']['board_id']
+          airtest_config.monday[:domain] = config['monday']['domain']
         end
         
-        airtest_config.github[:token] = ENV['GITHUB_BOT_TOKEN']
-        airtest_config.repo = ENV['REPO'] || config['github']['repo']
+        airtest_config.github[:token] = config['github']['token']
+        airtest_config.repo = config['github']['repo']
         airtest_config.tool = config['tool']
       end
     end
@@ -386,23 +387,23 @@ module AirTest
         'dev_assignee' => config[:dev_assignee],
         'interactive_mode' => config[:interactive_mode],
         'notion' => {
-          'token' => 'ENV["NOTION_TOKEN"]',
-          'database_id' => 'ENV["NOTION_DATABASE_ID"]'
+          'token' => ENV['NOTION_TOKEN'] || 'your_notion_token',
+          'database_id' => ENV['NOTION_DATABASE_ID'] || 'your_notion_database_id'
         },
         'jira' => {
-          'token' => 'ENV["JIRA_TOKEN"]',
-          'project_id' => 'ENV["JIRA_PROJECT_ID"]',
-          'domain' => 'ENV["JIRA_DOMAIN"]',
-          'email' => 'ENV["JIRA_EMAIL"]'
+          'token' => ENV['JIRA_TOKEN'] || 'your_jira_token',
+          'project_id' => ENV['JIRA_PROJECT_ID'] || 'your_jira_project_id',
+          'domain' => ENV['JIRA_DOMAIN'] || 'your_jira_domain',
+          'email' => ENV['JIRA_EMAIL'] || 'your_jira_email'
         },
         'monday' => {
-          'token' => 'ENV["MONDAY_TOKEN"]',
-          'board_id' => 'ENV["MONDAY_BOARD_ID"]',
-          'domain' => 'ENV["MONDAY_DOMAIN"]'
+          'token' => ENV['MONDAY_TOKEN'] || 'your_monday_token',
+          'board_id' => ENV['MONDAY_BOARD_ID'] || 'your_monday_board_id',
+          'domain' => ENV['MONDAY_DOMAIN'] || 'your_monday_domain'
         },
         'github' => {
-          'token' => 'ENV["GITHUB_BOT_TOKEN"]',
-          'repo' => 'your-org/your-repo'
+          'token' => ENV['GITHUB_BOT_TOKEN'] || 'your_github_token',
+          'repo' => ENV['REPO'] || 'your-org/your-repo'
         }
       }
 
@@ -510,6 +511,35 @@ module AirTest
           end
         end
       end
+    end
+
+    private
+
+    def load_env_files
+      # Try to load .env files in order of preference
+      env_files = ['.env.airtest', '.env']
+      
+      env_files.each do |env_file|
+        if File.exist?(env_file)
+          load_env_file(env_file)
+          puts "#{GREEN}✅ Loaded environment variables from #{env_file}#{RESET}" if ENV['AIRTEST_DEBUG']
+          break
+        end
+      end
+    end
+
+    def load_env_file(file_path)
+      File.readlines(file_path).each do |line|
+        line.strip!
+        next if line.empty? || line.start_with?('#')
+        
+        if line.include?('=')
+          key, value = line.split('=', 2)
+          ENV[key.strip] = value.strip.gsub(/^["']|["']$/, '') # Remove quotes
+        end
+      end
+    rescue => e
+      puts "#{YELLOW}⚠️  Warning: Could not load #{file_path}: #{e.message}#{RESET}" if ENV['AIRTEST_DEBUG']
     end
 
     # Color constants
