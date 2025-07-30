@@ -12,6 +12,7 @@ module AirTest
     def initialize(config = AirTest.configuration)
       @database_id = config.notion[:database_id]
       @notion_token = config.notion[:token]
+      @status_filter = config.status_filter || "Not started"
       @base_url = "https://api.notion.com/v1"
     end
 
@@ -22,16 +23,29 @@ module AirTest
         page_size: 100,
         filter: {
           property: "Status",
-          select: {
-            equals: "Not started"
+          status: {
+            equals: @status_filter
           }
         }
       }
+      
       response = make_api_request(uri, request_body)
+      
       return [] unless response.code == "200"
 
       data = JSON.parse(response.body)
-      data["results"].first(limit)
+      results = data["results"].first(limit)
+      
+      # Debug: Show the first ticket's properties to understand the structure
+      if ENV['AIRTEST_DEBUG'] && results.any?
+        first_ticket = results.first
+        puts "🔍 Debug: First ticket properties:"
+        first_ticket["properties"].each do |prop_name, prop_value|
+          puts "  - #{prop_name}: #{prop_value['type']}"
+        end
+      end
+      
+      results
     end
 
     def parse_ticket_content(page_id)

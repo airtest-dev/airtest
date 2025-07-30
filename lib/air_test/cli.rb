@@ -173,6 +173,7 @@ module AirTest
         airtest_config.github[:token] = config['github']['token']
         airtest_config.repo = config['github']['repo']
         airtest_config.tool = config['tool']
+        airtest_config.status_filter = config['status_filter']
       end
     end
 
@@ -187,12 +188,15 @@ module AirTest
       # Fetch all tickets (we'll filter them later)
       all_tickets = parser.fetch_tickets(limit: 100)
       
+      puts "#{YELLOW}🔍 Found #{all_tickets.length} total tickets#{RESET}"
+      
       # Filter by search if specified
       if options[:search]
         all_tickets = all_tickets.select { |ticket| 
           title = parser.extract_ticket_title(ticket)
           title.downcase.include?(options[:search].downcase)
         }
+        puts "#{YELLOW}🔍 After search filter: #{all_tickets.length} tickets#{RESET}"
       end
       
       # Filter by status (only "Ready" or "Not started" tickets)
@@ -364,12 +368,14 @@ module AirTest
       auto_pr = @prompt.select("Enable auto PR creation by default?", %w[yes no], default: 'no')
       dev_assignee = @prompt.ask("Default dev assignee name?", default: 'default_assignee')
       interactive_mode = @prompt.select("Enable interactive mode by default?", %w[yes no], default: 'no')
+      status_filter = @prompt.ask("Default status filter for tickets?", default: 'Not started')
       
       {
         tool: tool,
         auto_pr: auto_pr,
         dev_assignee: dev_assignee,
-        interactive_mode: interactive_mode
+        interactive_mode: interactive_mode,
+        status_filter: status_filter
       }
     end
 
@@ -386,6 +392,7 @@ module AirTest
         'auto_pr' => config[:auto_pr],
         'dev_assignee' => config[:dev_assignee],
         'interactive_mode' => config[:interactive_mode],
+        'status_filter' => config[:status_filter],
         'notion' => {
           'token' => ENV['NOTION_TOKEN'] || 'your_notion_token',
           'database_id' => ENV['NOTION_DATABASE_ID'] || 'your_notion_database_id'
@@ -445,6 +452,7 @@ module AirTest
           NOTION_TOKEN=your_notion_token
           NOTION_DATABASE_ID=your_notion_database_id
           GITHUB_BOT_TOKEN=your_github_token
+          AIRTEST_STATUS_FILTER=Not started
         ENV
       when 'jira'
         <<~ENV
@@ -453,6 +461,7 @@ module AirTest
           JIRA_DOMAIN=your_jira_domain
           JIRA_EMAIL=your_jira_email
           GITHUB_BOT_TOKEN=your_github_token
+          AIRTEST_STATUS_FILTER=To Do
         ENV
       when 'monday'
         <<~ENV
@@ -460,6 +469,7 @@ module AirTest
           MONDAY_BOARD_ID=your_monday_board_id
           MONDAY_DOMAIN=your_monday_domain
           GITHUB_BOT_TOKEN=your_github_token
+          AIRTEST_STATUS_FILTER=Working on it
         ENV
       end
 

@@ -4,7 +4,7 @@
 module AirTest
   # Handles configuration for AirTest, including API tokens and environment variables.
   class Configuration
-    attr_accessor :tool, :notion, :jira, :monday, :github, :repo
+    attr_accessor :tool, :notion, :jira, :monday, :github, :repo, :status_filter
 
     def initialize
       @tool = ENV.fetch("AIRTEST_TOOL", "notion")
@@ -27,6 +27,7 @@ module AirTest
         token: ENV["GITHUB_BOT_TOKEN"] || ENV.fetch("GITHUB_TOKEN", nil)
       }
       @repo = ENV.fetch("REPO", nil)
+      @status_filter = ENV.fetch("AIRTEST_STATUS_FILTER", "Not started")
     end
 
     def validate!
