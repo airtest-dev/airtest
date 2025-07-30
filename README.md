@@ -106,6 +106,7 @@ tool: notion                    # Your ticketing tool (notion/jira/monday)
 auto_pr: 'yes'                  # Enable auto PR creation
 dev_assignee: 'your-name'       # Default dev assignee
 interactive_mode: 'yes'         # Enable interactive mode by default
+status_filter: 'Not started'    # Status filter for tickets to fetch
 notion:
   token: ENV["NOTION_TOKEN"]
   database_id: ENV["NOTION_DATABASE_ID"]
@@ -122,6 +123,20 @@ github:
   token: ENV["GITHUB_BOT_TOKEN"]
   repo: 'your-org/your-repo'
 ```
+
+### Status Filtering
+
+AirTest can filter tickets by their status to only process tickets in specific states:
+
+- **Notion**: Filter by status like "Not started", "In progress", "Done", "attente de confirmation", etc.
+- **Jira**: Filter by status like "To Do", "In Progress", "Done", etc.
+- **Monday.com**: Filter by status like "Working on it", "Done", "Stuck", etc.
+
+You can configure the status filter in three ways:
+
+1. **During setup**: When running `air_test init`, you'll be prompted for the default status filter
+2. **Environment variable**: Set `AIRTEST_STATUS_FILTER=your_status` in your `.env` file
+3. **Configuration file**: Edit the `status_filter` field in `.airtest.yml`
 
 ### Rails Initializer (Optional)
 
@@ -234,6 +249,7 @@ Show help information and usage examples.
 NOTION_TOKEN=secret_xxx
 NOTION_DATABASE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 GITHUB_BOT_TOKEN=ghp_xxx
+AIRTEST_STATUS_FILTER=Not started  # Optional: Override status filter
 ```
 
 #### For Jira:
@@ -243,6 +259,7 @@ JIRA_PROJECT_ID=your_project_id
 JIRA_DOMAIN=your_domain.atlassian.net
 JIRA_EMAIL=your_email@example.com
 GITHUB_BOT_TOKEN=ghp_xxx
+AIRTEST_STATUS_FILTER=To Do  # Optional: Override status filter
 ```
 
 #### For Monday.com:
@@ -251,6 +268,7 @@ MONDAY_TOKEN=your_monday_token
 MONDAY_BOARD_ID=your_board_id
 MONDAY_DOMAIN=your_domain.monday.com
 GITHUB_BOT_TOKEN=ghp_xxx
+AIRTEST_STATUS_FILTER=Working on it  # Optional: Override status filter
 ```
 
 ### System Requirements
@@ -266,7 +284,7 @@ GITHUB_BOT_TOKEN=ghp_xxx
 
 - **Configuration not found**: Run `air_test init` to set up configuration
 - **Authentication error**: Check your API tokens in environment variables
-- **No tickets found**: Verify your ticketing tool configuration and permissions
+- **No tickets found**: Verify your ticketing tool configuration and permissions, or check if your status filter matches existing ticket statuses
 - **PR not created**: Make sure the branch contains commits different from `main`
 - **Permission issues**: Ensure the GitHub bot has access to the repo
 
